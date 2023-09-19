@@ -1,21 +1,6 @@
 #include "Engine.h"
-#include <iostream>
-
-const char* vertexShaderSource =
-"#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"}\0";
-
-const char* fragmentShaderSource =
-"#version 330 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-"}\n\0";
+#include <fstream>
+#include <string>
 
 Engine::Engine(int width, int height, const char* windowName)
 {
@@ -79,17 +64,46 @@ bool Engine::Initialize()
 	return true;
 }
 
+char* Engine::textFileRead(std::string filePath)
+{
+	std::ifstream file(filePath, std::ios::binary);
+
+	if (!file.is_open()) {
+		std::cerr << "Could not open the file." << std::endl;
+		return nullptr;
+	}
+
+	file.seekg(0, std::ios::end);
+	int fileSize = file.tellg();
+	file.seekg(0, std::ios::beg);
+
+	char* content = new char[fileSize + 1];
+	file.read(content, fileSize);
+	content[fileSize] = '\0';
+
+	file.close();
+
+	return content;
+}
+
 void Engine::Run()
 {
-	// Triangle
+	// Triangle + colors
 	float vertices[] = {
-	-0.5f, -0.5f, 0.0f,
-	 0.5f, -0.5f, 0.0f,
-	 0.0f,  0.5f, 0.0f
+		// positions         // colors
+		 0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
+		-0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
+		 0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top 
 	};
 
 	// vertex shader creation
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
+	const char* vertexFileName = "Source/VertexShader.vert";
+	const char* fragmentFileName = "Source/FragmentShader.frag";
+
+	const char* vertexShaderSource = textFileRead(vertexFileName);
+	const char* fragmentShaderSource = textFileRead(fragmentFileName);	
 
 	// Next we attach the shader source code to the shader object and compile the shader:
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
@@ -122,6 +136,9 @@ void Engine::Run()
 		return;
 	}
 
+	delete[] vertexShaderSource; // Free the memory
+	delete[] fragmentShaderSource; // Free the memory
+
 	// To use the shaders we have to link them to a shader program object
 	unsigned int shaderProgram = glCreateProgram();
 
@@ -144,35 +161,42 @@ void Engine::Run()
 	glDeleteShader(fragmentShader);
 
 	// Link vertex attributes (indicate OpenGL how to read the triangle)
-	glVertexAttribPointer(0, //(Position shader info, location = 0)
-		3, //size of vertex attribute (vec3)
-		GL_FLOAT, //type of data
-		GL_FALSE, //Normalize data() //-1,+1
-		3 * sizeof(float), //Size of data stride (3 floats)
-		(void*)0); //Starting point of data info [0]
+	// position attribute
+	//glVertexAttribPointer(0, //(Position shader info, location = 0)
+	//	3, //size of vertex attribute (vec3)
+	//	GL_FLOAT, //type of data
+	//	GL_FALSE, //Normalize data() //-1,+1
+	//	6 * sizeof(float), //Size of data stride (6 floats, 3 vert + 3 color)
+	//	(void*)0); //Starting point of data info [0]
 
-	glEnableVertexAttribArray(0);
+	//glEnableVertexAttribArray(0);
+
+	// color attribute
+	/*glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);*/
 
 	// Use of shader
 	// 
 	// Create a VAO (As soon as we want to draw an object, 
 	// we simply bind the VAO with the preferred settings (VBO)
 	// before drawing the object and that is it
-	unsigned int VAO = 0;
+	unsigned int VBO, VAO;
 	glGenVertexArrays(1, &VAO);
-
-	unsigned int VBO = 0;
 	glGenBuffers(1, &VBO);
-
-	// 1. bind Vertex Array Object
+	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 	glBindVertexArray(VAO);
-	// 2. copy our vertices array in a buffer for OpenGL to use
-	glBindBuffer(GL_ARRAY_BUFFER, VBO); //Array buffer
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); //Copy data to the buffer
-	//The position data of the triangle does not change and stays the same for every render call so its usage type should best be GL_STATIC_DRAW
-	// 3. then set our vertex attributes pointers
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	// color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+		
+	glUseProgram(shaderProgram);
 
 	// Simple render loop. It stops when we close the window
 	while (!glfwWindowShouldClose(window))
@@ -180,12 +204,11 @@ void Engine::Run()
 		// Input
 		ProcessInput(window);
 
-		// Rendering
+		// Buffer clearing
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// Triangle rendering
-		glUseProgram(shaderProgram);
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3); // Primitive type, starting index, last index
 

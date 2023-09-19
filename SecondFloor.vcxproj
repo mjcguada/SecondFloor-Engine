@@ -28,6 +28,10 @@
     <ClInclude Include="Source\Engine.h" />
     <ClInclude Include="Source\Triangle.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\FragmentShader.frag" />
+    <None Include="Source\VertexShader.vert" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

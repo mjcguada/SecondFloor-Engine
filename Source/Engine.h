@@ -1,6 +1,7 @@
 #pragma once
 #include <glad/glad.h> 
 #include <GLFW/glfw3.h>
+#include <iostream>
 
 class Engine
 {
@@ -21,4 +22,6 @@ private:
 	// Functions declaration
 	static void Framebuffer_size_callback(GLFWwindow* window, int width, int height);
 	void ProcessInput(GLFWwindow* window);
+
+	char* textFileRead(std::string filePath);
 };
