@@ -3,11 +3,10 @@
 
 int main()
 {
-	Engine* engine = new Engine(1280, 1000, "Second Floor");
-	engine->Initialize();
+	Engine* engine = new Engine();
+	engine->Initialize(1280, 1000, "Second Floor");
 	engine->Run();
-
-	delete engine;
+	engine->Stop();
 
 	return 0;
 }

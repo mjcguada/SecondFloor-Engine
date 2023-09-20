@@ -1,28 +1,18 @@
 #include "Engine.h"
 #include <fstream>
 #include <string>
+#include "Shader.h"
 
-Engine::Engine(int width, int height, const char* windowName)
+Engine::Engine()
+{	
+}
+
+bool Engine::Initialize(int width, int height, const char* windowName)
 {
 	this->width = width;
 	this->height = height;
 	this->windowName = windowName;
-}
 
-Engine::~Engine()
-{
-	// De-allocate resources
-	//glDeleteVertexArrays(1, &VAO);
-	//glDeleteBuffers(1, &VBO);
-	////glDeleteBuffers(1, &EBO);
-	//glDeleteProgram(shaderProgram);
-
-	// Clean glfw resources
-	glfwTerminate();
-}
-
-bool Engine::Initialize()
-{
 	glfwInit();
 	// Configure OpenGL Version
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -64,28 +54,6 @@ bool Engine::Initialize()
 	return true;
 }
 
-char* Engine::textFileRead(std::string filePath)
-{
-	std::ifstream file(filePath, std::ios::binary);
-
-	if (!file.is_open()) {
-		std::cerr << "Could not open the file." << std::endl;
-		return nullptr;
-	}
-
-	file.seekg(0, std::ios::end);
-	int fileSize = file.tellg();
-	file.seekg(0, std::ios::beg);
-
-	char* content = new char[fileSize + 1];
-	file.read(content, fileSize);
-	content[fileSize] = '\0';
-
-	file.close();
-
-	return content;
-}
-
 void Engine::Run()
 {
 	// Triangle + colors
@@ -97,83 +65,10 @@ void Engine::Run()
 	};
 
 	// vertex shader creation
-	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	const char* vertexFileName = "Shaders/color.vert";
+	const char* fragmentFileName = "Shaders/color.frag";
 
-	const char* vertexFileName = "Source/VertexShader.vert";
-	const char* fragmentFileName = "Source/FragmentShader.frag";
-
-	const char* vertexShaderSource = textFileRead(vertexFileName);
-	const char* fragmentShaderSource = textFileRead(fragmentFileName);	
-
-	// Next we attach the shader source code to the shader object and compile the shader:
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
-
-	// Check if shader compilation was successful
-	int success;
-	char infoLog[512];
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-
-	if (!success)
-	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-		return;
-	}
-
-	// Fragment shader (orange color)
-	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
-
-	// Check if shader compilation was successful
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-
-	if (!success)
-	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-		return;
-	}
-
-	delete[] vertexShaderSource; // Free the memory
-	delete[] fragmentShaderSource; // Free the memory
-
-	// To use the shaders we have to link them to a shader program object
-	unsigned int shaderProgram = glCreateProgram();
-
-	// Attach shaders and then link them
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-
-	// Check program compilation
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::COMPILATION_FAILED\n" << infoLog << std::endl;
-		return;
-	}
-
-	// Once the program is compiled we can delete the shaders
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-
-	// Link vertex attributes (indicate OpenGL how to read the triangle)
-	// position attribute
-	//glVertexAttribPointer(0, //(Position shader info, location = 0)
-	//	3, //size of vertex attribute (vec3)
-	//	GL_FLOAT, //type of data
-	//	GL_FALSE, //Normalize data() //-1,+1
-	//	6 * sizeof(float), //Size of data stride (6 floats, 3 vert + 3 color)
-	//	(void*)0); //Starting point of data info [0]
-
-	//glEnableVertexAttribArray(0);
-
-	// color attribute
-	/*glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);*/
+	Shader colorShader = Shader(vertexFileName, fragmentFileName);	
 
 	// Use of shader
 	// 
@@ -190,13 +85,20 @@ void Engine::Run()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, //(Position shader info, location = 0)
+		3, //size of vertex attribute (vec3)
+		GL_FLOAT, //type of data
+		GL_FALSE, //Normalize data() //-1, +1
+		6 * sizeof(float), //Size of data stride (6 floats, 3 vert + 3 color)
+		(void*)0);
+
 	glEnableVertexAttribArray(0);
+
 	// color attribute
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-		
-	glUseProgram(shaderProgram);
+	
+	colorShader.Use();
 
 	// Simple render loop. It stops when we close the window
 	while (!glfwWindowShouldClose(window))
@@ -216,6 +118,12 @@ void Engine::Run()
 		glfwSwapBuffers(window);
 		glfwPollEvents(); //input events (Mouse, keyboard, window resize...)
 	}
+}
+
+void Engine::Stop()
+{
+	// Clean glfw resources
+	glfwTerminate();
 }
 
 // Callback called whenever we resize the window
