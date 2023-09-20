@@ -12,11 +12,17 @@
 class Shader
 {
 public:
-	// Constructor reads and compiles the shader
-	Shader(const char* vertexSource, const char* fragmentSource, const char* geometrySource = nullptr);
+	// Constructor
+	Shader() {}
 
 	// Use/activate the shader
 	Shader& Use();
+
+	// Compiles the shader from given source code
+	void Compile(const char* vertexSource, const char* fragmentSource, const char* geometrySource = nullptr); // note: geometry source code is optional 
+
+	// shader program ID
+	unsigned int ID;
 
 	// Utility uniform functions
 	void SetFloat(const char* name, float value, bool useShader = false);
@@ -30,10 +36,7 @@ public:
 	void SetMatrix4(const char* name, const glm::mat4& matrix, bool useShader = false);
 
 private:
-	void CheckCompileErrors(unsigned int shader, std::string type);
-
-	// shader program ID
-	unsigned int ID;
+	void CheckCompileErrors(unsigned int shader, std::string type);	
 };
 
 #endif

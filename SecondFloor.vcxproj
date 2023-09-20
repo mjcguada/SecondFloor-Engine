@@ -23,6 +23,7 @@
     <ClCompile Include="Source\GameObject.cpp" />
     <ClCompile Include="Source\glad.c" />
     <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="Source\ResourceManager.cpp" />
     <ClCompile Include="Source\Shader.cpp" />
     <ClCompile Include="Source\Texture2D.cpp" />
     <ClCompile Include="Source\Transform.cpp" />
@@ -31,6 +32,7 @@
   <ItemGroup>
     <ClInclude Include="Source\Engine.h" />
     <ClInclude Include="Source\GameObject.h" />
+    <ClInclude Include="Source\ResourceManager.h" />
     <ClInclude Include="Source\Shader.h" />
     <ClInclude Include="Source\stb_image.h" />
     <ClInclude Include="Source\Texture2D.h" />

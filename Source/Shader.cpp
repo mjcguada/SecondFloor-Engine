@@ -1,10 +1,14 @@
 #include "Shader.h"
 #include <glad/glad.h> // include glad to get all the required OpenGL headers
 
-Shader::Shader(const char* vertexSource, const char* fragmentSource, const char* geometrySource)
+Shader& Shader::Use()
 {
-	// Compile shaders
+	glUseProgram(this->ID);
+	return *this;
+}
 
+void Shader::Compile(const char* vertexSource, const char* fragmentSource, const char* geometrySource)
+{
 	// vertex shader
 	unsigned int vertex = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertex, 1, &vertexSource, NULL);
@@ -40,12 +44,6 @@ Shader::Shader(const char* vertexSource, const char* fragmentSource, const char*
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
 	if (geometrySource != nullptr) glDeleteShader(gShader);
-}
-
-Shader& Shader::Use()
-{
-	glUseProgram(this->ID);
-	return *this;
 }
 
 //char* Shader::ReadFile(const std::string filePath)
