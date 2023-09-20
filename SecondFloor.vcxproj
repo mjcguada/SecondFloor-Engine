@@ -24,6 +24,7 @@
     <ClCompile Include="Source\glad.c" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\Shader.cpp" />
+    <ClCompile Include="Source\Texture2D.cpp" />
     <ClCompile Include="Source\Transform.cpp" />
     <ClCompile Include="Source\Triangle.cpp" />
   </ItemGroup>
@@ -31,12 +32,16 @@
     <ClInclude Include="Source\Engine.h" />
     <ClInclude Include="Source\GameObject.h" />
     <ClInclude Include="Source\Shader.h" />
+    <ClInclude Include="Source\stb_image.h" />
+    <ClInclude Include="Source\Texture2D.h" />
     <ClInclude Include="Source\Transform.h" />
     <ClInclude Include="Source\Triangle.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\color.frag" />
     <None Include="Shaders\color.vert" />
+    <None Include="Shaders\plainTexture.frag" />
+    <None Include="Shaders\plainTexture.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

@@ -6,26 +6,34 @@
 #include <sstream>
 #include <iostream>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 class Shader
 {
 public:
-    // Constructor reads and builds the shader
-    Shader(const char* vertexPath, const char* fragmentPath);
+	// Constructor reads and compiles the shader
+	Shader(const char* vertexSource, const char* fragmentSource, const char* geometrySource = nullptr);
 
-    // Use/activate the shader
-    void Use();
+	// Use/activate the shader
+	Shader& Use();
 
-    // Utility uniform functions
-    void setBool(const std::string& name, bool value) const;
-    void setInt(const std::string& name, int value) const;
-    void setFloat(const std::string& name, float value) const;
+	// Utility uniform functions
+	void SetFloat(const char* name, float value, bool useShader = false);
+	void SetInteger(const char* name, int value, bool useShader = false);
+	void SetVector2f(const char* name, float x, float y, bool useShader = false);
+	void SetVector2f(const char* name, const glm::vec2& value, bool useShader = false);
+	void SetVector3f(const char* name, float x, float y, float z, bool useShader = false);
+	void SetVector3f(const char* name, const glm::vec3& value, bool useShader = false);
+	void SetVector4f(const char* name, float x, float y, float z, float w, bool useShader = false);
+	void SetVector4f(const char* name, const glm::vec4& value, bool useShader = false);
+	void SetMatrix4(const char* name, const glm::mat4& matrix, bool useShader = false);
 
 private:
-    char* ReadFile(const std::string filePath);
-    void CheckCompileErrors(unsigned int shader, std::string type);
+	void CheckCompileErrors(unsigned int shader, std::string type);
 
-    // shader program ID
-    unsigned int ID;
+	// shader program ID
+	unsigned int ID;
 };
 
 #endif

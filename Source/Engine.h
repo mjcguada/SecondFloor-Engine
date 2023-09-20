@@ -6,8 +6,6 @@
 class Engine
 {
 public:
-	Engine();
-
 	bool Initialize(int width, int height, const char* windowName);
 	void Run();
 	void Stop();
@@ -17,7 +15,6 @@ private:
 	GLFWwindow* window = nullptr;
 	int width = 0;
 	int height = 0;
-	const char* windowName = nullptr;
 
 	// Functions declaration
 	static void Framebuffer_size_callback(GLFWwindow* window, int width, int height);

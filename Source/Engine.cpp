@@ -2,16 +2,12 @@
 #include <fstream>
 #include <string>
 #include "Shader.h"
-
-Engine::Engine()
-{	
-}
+#include "Texture2D.h"
 
 bool Engine::Initialize(int width, int height, const char* windowName)
 {
 	this->width = width;
 	this->height = height;
-	this->windowName = windowName;
 
 	glfwInit();
 	// Configure OpenGL Version
@@ -56,50 +52,6 @@ bool Engine::Initialize(int width, int height, const char* windowName)
 
 void Engine::Run()
 {
-	// Triangle + colors
-	float vertices[] = {
-		// positions         // colors
-		 0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
-		-0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
-		 0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top 
-	};
-
-	// vertex shader creation
-	const char* vertexFileName = "Shaders/color.vert";
-	const char* fragmentFileName = "Shaders/color.frag";
-
-	Shader colorShader = Shader(vertexFileName, fragmentFileName);	
-
-	// Use of shader
-	// 
-	// Create a VAO (As soon as we want to draw an object, 
-	// we simply bind the VAO with the preferred settings (VBO)
-	// before drawing the object and that is it
-	unsigned int VBO, VAO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	// position attribute
-	glVertexAttribPointer(0, //(Position shader info, location = 0)
-		3, //size of vertex attribute (vec3)
-		GL_FLOAT, //type of data
-		GL_FALSE, //Normalize data() //-1, +1
-		6 * sizeof(float), //Size of data stride (6 floats, 3 vert + 3 color)
-		(void*)0);
-
-	glEnableVertexAttribArray(0);
-
-	// color attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	
-	colorShader.Use();
-
 	// Simple render loop. It stops when we close the window
 	while (!glfwWindowShouldClose(window))
 	{
@@ -110,9 +62,7 @@ void Engine::Run()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// Triangle rendering
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3); // Primitive type, starting index, last index
+		// Rendering
 
 		// Check and call events and swap the buffers
 		glfwSwapBuffers(window);

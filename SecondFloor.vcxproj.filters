@@ -39,6 +39,9 @@
     <ClCompile Include="Source\Transform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Texture2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Engine.h">
@@ -56,12 +59,24 @@
     <ClInclude Include="Source\Transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Texture2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\color.frag">
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\color.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\plainTexture.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\plainTexture.vert">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
